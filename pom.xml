@@ -83,7 +83,7 @@
 
     </dependencies>
     <modules>
-        <module>common</module>
+        <module>backbone</module>
 
     </modules>
     <build>

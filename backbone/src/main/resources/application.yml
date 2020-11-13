@@ -1,0 +1,52 @@
+server:
+  port: 8080
+  max-http-header-size: 4048
+  tomcat:
+    max-http-post-size: 10MB
+
+spring:
+  resources:
+    add-mappings: false
+  mvc:
+
+    throw-exception-if-no-handler-found: true
+    view:
+      prefix: /
+      suffix: .html
+  data:
+    mongodb:
+      uri: mongodb://fa-mongo:27017/chain-service
+#      uri: mongodb://chainAppUser:chainAppPass31312jfdsalfjsalj@fa-mongo:27017/chain-service
+
+# 请求链码的接口地址
+nodeUrl: https://hangzhounode.bsngate.com:17602/api/node/reqChainCode
+#nodeUrl: https://quanzhounode.bsngate.com:17602/api/node/reqChainCode
+
+# 获取块信息的接口地址
+#blockUrl: https://quanzhounode.bsngate.com:17602/api/node/getBlockInfo
+blockUrl: https://hangzhounode.bsngate.com:17602/api/node/getBlockInfo
+
+# https证书存放路径
+http_cert_path: /cert/158207746041996/bsngate_https.crt
+
+# 私钥证书路径
+private_cert_path: /cert/158207746041996/cert/userCert/private_key.pem
+
+# 网关公钥证书路径
+gateway_public_cert_path: /cert/158207746041996/cert/gatewayCert/gateway_public_cert.pem
+
+# 用户编码
+userCode: Zhongkefuyun
+
+# 应用编码
+appCode: CL1538239702920191223150637
+
+# 链码名称
+#chainCode: cc_base
+chainCode: cc_cl1538239702920191223150637_00
+
+tid:
+springfox:
+  documentation:
+    swagger:
+      v2: path=/swagger
