@@ -32,25 +32,20 @@ public class PersonInfoController
     MongoTemplate db;
 
     @ApiOperation("保存用户信息")
-    @PostMapping("/save")
+    @PostMapping("/")
     public PersonBasicInfo save(@Valid @RequestBody PersonBasicInfo req) {
         req.setRegTime(new Date());
         return db.save(req);
     }
 
-    @ApiOperation("获取留言")
-    @GetMapping("/get/{id}")
+    @ApiOperation("获取用户")
+    @GetMapping("/{id}")
     public PersonBasicInfo get(@PathVariable String id) {
         return db.findById(new ObjectId(id), PersonBasicInfo.class);
     }
 
-    @ApiOperation("标记已读")
-    @PostMapping("/read")
-    public Long read(String id) {
-        return db.updateFirst(Query.query(Criteria.where("id").is(id)), BasicUpdate.update("read", true), PersonBasicInfo.class).getModifiedCount();
-    }
 
-    @ApiOperation("留言列表")
+    @ApiOperation("用户列表")
     @GetMapping(value = "/list")
     public Page<PersonBasicInfo> list(@RequestParam(required = false) Date from,
                                       @RequestParam(required = false) Date to,
