@@ -1,3 +1,6 @@
 /backbone/backbone.iml
 .idea/*
 ,idea
+/backbone/target/
+/logs
+/backbone/logs
