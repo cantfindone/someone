@@ -1,15 +1,15 @@
+import cn.hutool.json.JSONArray
 import cn.hutool.json.JSONObject
 import com.alibaba.fastjson.JSON
 import com.kvn.mockj.reflection.MockR
 import com.kvn.mockj.reflection.TypeReference
 import com.superjoy.someone.BackboneApp
+import com.superjoy.someone.model.InstantPostReq
 import com.superjoy.someone.model.LoginRes
-import com.superjoy.someone.model.PersonInfoReq
 import com.superjoy.someone.model.PhoneNoLoginReq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -19,8 +19,7 @@ import spock.lang.Specification
 
 @SpringBootTest(classes = BackboneApp.class)
 @AutoConfigureMockMvc
-class PersonControllerTest extends Specification {
-
+class InstantPostControllerTest extends Specification {
     @Autowired
     MockMvc mvc
     @Shared
@@ -28,9 +27,6 @@ class PersonControllerTest extends Specification {
 
     @Shared
     def token
-
-    @Autowired
-    MongoTemplate db;
 
     void setup() {
         String res = mvc.perform(MockMvcRequestBuilders
@@ -40,31 +36,28 @@ class PersonControllerTest extends Specification {
         ).andReturn().response.getContentAsString()
         token = JSON.parseObject(res, LoginRes.class).getJwt()
         println(res)
-        //db.remove(org.springframework.data.mongodb.core.query.Query.query(Criteria.where("phone").is("188888888")), PersonInfo.class)
         expect:
         res != null
-
 
     }
 
     def "Save"() {
-        def random = MockR.random(new TypeReference<PersonInfoReq>() {
+        def random = MockR.random(new TypeReference<InstantPostReq>() {
         })
         random.setId(null)
-        random.setPhone("188888888")
         String jsonString = com.alibaba.fastjson.JSON.toJSON(random)
-        String res = mvc.perform(MockMvcRequestBuilders.post("/person/")
+        String res = mvc.perform(MockMvcRequestBuilders.post("/instantPost/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonString)).andReturn().response.getContentAsString()
         println(res)
-        id = JSON.parseObject(res, PersonInfoReq.class).getId()
+        id = JSON.parseObject(res, InstantPostReq.class).getId()
         expect:
         id != null
     }
 
-    def "Get"() {
-        String res = mvc.perform(MockMvcRequestBuilders.get("/person/".concat(id))
+    def "View"() {
+        String res = mvc.perform(MockMvcRequestBuilders.get("/instantPost/".concat(id).concat("/view"))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andReturn().response.getContentAsString()
@@ -74,20 +67,36 @@ class PersonControllerTest extends Specification {
         expect:
         id != null
     }
-    def "Viewers"() {
-        String res = mvc.perform(MockMvcRequestBuilders.get("/person/".concat(id).concat("/viewers"))
+
+    def "Like"() {
+        String res = mvc.perform(MockMvcRequestBuilders.post("/instantPost/".concat(id).concat("/like"))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andReturn().response.getContentAsString()
         def json = new JSONObject(res)
         println(json)
-        id = json.getStr("ownerId")
+        id = json.getStr("id")
+        expect:
+        id != null
+    }
+
+    def "Comment"() {
+        def random = MockR.random(new TypeReference<InstantPostReq.Comment>() {
+        })
+        String jsonString = com.alibaba.fastjson.JSON.toJSON(random)
+        String res = mvc.perform(MockMvcRequestBuilders.post("/instantPost/".concat(id).concat("/comment"))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonString)).andReturn().response.getContentAsString()
+        def json = new JSONObject(res)
+        println(json)
+        id = json.getStr("id")
         expect:
         id != null
     }
 
     def "List"() {
-        String res = mvc.perform(MockMvcRequestBuilders.get("/person/list")
+        String res = mvc.perform(MockMvcRequestBuilders.get("/instantPost/list")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andReturn().response.getContentAsString()

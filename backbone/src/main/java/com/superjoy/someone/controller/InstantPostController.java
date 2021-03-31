@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.superjoy.someone.model.InstantPost;
 import com.superjoy.someone.model.InstantPostReq;
 import com.superjoy.someone.model.Page;
+import com.superjoy.someone.utils.UserContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.bson.types.ObjectId;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author Ping
@@ -30,6 +32,7 @@ import java.util.List;
 public class InstantPostController {
     @Autowired
     MongoTemplate db;
+
     @ApiOperation("发布动态")
     @PostMapping("/")
     public InstantPostReq save(@Valid @RequestBody InstantPostReq req) {
@@ -39,28 +42,31 @@ public class InstantPostController {
     }
 
     @ApiOperation("浏览")
-    @PostMapping("/{id}/view")
-    public InstantPostReq view(@PathVariable String id, String userId) {
+    @GetMapping("/{id}/view")
+    public synchronized InstantPostReq view(@PathVariable String id) {
         InstantPostReq post = db.findById(new ObjectId(id), InstantPostReq.class);
-        List<String> viewers = post.getViewers();
-        viewers.add(userId);
+        Long viewers = post.getViewers();
+        post.setViewers(viewers + 1);
         db.save(post);
         return post;
     }
 
     @ApiOperation("点赞")
     @PostMapping("/{id}/like")
-    public InstantPostReq like(@PathVariable String id, String userId) {
+    public synchronized InstantPostReq like(@PathVariable String id) {
+
         InstantPostReq post = db.findById(new ObjectId(id), InstantPostReq.class);
-        List<String> likes = post.getLikes();
-        likes.add(userId);
+        Set<String> likes = post.getLikes();
+        likes.add(UserContext.currentUserId());
         db.save(post);
         return post;
     }
 
     @ApiOperation("评论")
     @PostMapping("/{id}/comment")
-    public InstantPostReq comment(@PathVariable String id, @Valid @RequestBody InstantPostReq.Comment comment) {
+    public synchronized InstantPostReq comment(@PathVariable String id, @Valid @RequestBody InstantPostReq.Comment comment) {
+        comment.setUserId(UserContext.currentUserId());
+        comment.setTime(new Date());
         InstantPostReq post = db.findById(new ObjectId(id), InstantPostReq.class);
         List<InstantPostReq.Comment> comments = post.getComments();
         comments.add(comment);
@@ -72,9 +78,9 @@ public class InstantPostController {
     @ApiOperation("动态列表")
     @GetMapping(value = "/list")
     public Page<InstantPostReq> list(@RequestParam(required = false) String userId,
-                                         @RequestParam(required = false) String  city,
-                                         @RequestParam(required = false, defaultValue = "0") Integer offset,
-                                         @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                     @RequestParam(required = false) String city,
+                                     @RequestParam(required = false, defaultValue = "0") Integer offset,
+                                     @RequestParam(required = false, defaultValue = "10") Integer size) {
         Criteria cri = new Criteria();
         List<Criteria> cs = new ArrayList<>();
         if (userId != null) {

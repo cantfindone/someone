@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.superjoy.someone.model.DatingPost;
 import com.superjoy.someone.model.DatingPostReq;
 import com.superjoy.someone.model.Page;
+import com.superjoy.someone.utils.UserContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.bson.types.ObjectId;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author Ping
@@ -39,28 +41,28 @@ public class DatingPostController {
     }
 
     @ApiOperation("浏览")
-    @PostMapping("/{id}/view")
-    public DatingPostReq view(@PathVariable String id, String userId) {
+    @GetMapping("/{id}/view")
+    public synchronized DatingPostReq view(@PathVariable String id) {
         DatingPostReq post = db.findById(new ObjectId(id), DatingPostReq.class);
-        List<String> viewers = post.getViewers();
-        viewers.add(userId);
+        Long viewers = post.getViewers();
+        post.setViewers(viewers+1);
         db.save(post);
         return post;
     }
 
     @ApiOperation("点赞")
     @PostMapping("/{id}/like")
-    public DatingPostReq like(@PathVariable String id, String userId) {
+    public synchronized DatingPostReq like(@PathVariable String id) {
         DatingPostReq post = db.findById(new ObjectId(id), DatingPostReq.class);
-        List<String> likes = post.getLikes();
-        likes.add(userId);
+        Set<String> likes = post.getLikes();
+        likes.add(UserContext.currentUserId());
         db.save(post);
         return post;
     }
 
     @ApiOperation("评论")
     @PostMapping("/{id}/comment")
-    public DatingPostReq comment(@PathVariable String id, @Valid @RequestBody DatingPostReq.Comment comment) {
+    public synchronized DatingPostReq comment(@PathVariable String id, @Valid @RequestBody DatingPostReq.Comment comment) {
         DatingPostReq post = db.findById(new ObjectId(id), DatingPostReq.class);
         List<DatingPostReq.Comment> comments = post.getComments();
         comments.add(comment);

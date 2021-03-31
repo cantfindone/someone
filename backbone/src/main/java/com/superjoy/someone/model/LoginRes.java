@@ -1,8 +1,10 @@
 package com.superjoy.someone.model;
 
 import io.swagger.annotations.ApiModel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @Author Ping
@@ -11,6 +13,7 @@ import lombok.Data;
 @ApiModel
 @Data
 @Builder
+@AllArgsConstructor
 public class LoginRes {
     String userId;
     String mobile;

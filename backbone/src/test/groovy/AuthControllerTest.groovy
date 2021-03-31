@@ -20,6 +20,17 @@ class AuthControllerTest extends Specification {
     MockMvc mvc
     @Shared
     def token
+    def "Sms"() {
+        String res = mvc.perform(MockMvcRequestBuilders
+                .get("/auth/sms/188888888")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn().response.getContentAsString()
+        res
+        println(res)
+        expect:
+        res != null
+
+    }
     def "Auth Token"() {
         String res = mvc.perform(MockMvcRequestBuilders
                 .post("/auth/phone")

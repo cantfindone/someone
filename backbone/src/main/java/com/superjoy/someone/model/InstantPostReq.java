@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author Ping
@@ -35,22 +36,17 @@ public class InstantPostReq {
     @ApiModelProperty("匿名")
     private Boolean anonymous;
     @ApiModelProperty("读者")
-    private List<String> viewers;
+    private Long viewers;
     @ApiModelProperty("点赞")
-    private List<String> likes;
+    private Set<String> likes;
     @ApiModelProperty("评论")
     private List<Comment> comments;
 
-    @Getter
+    @Data
     public static class Comment {
-        @Setter
         String userId;
-        @Setter
         String at;
-        @Setter
         String text;
-        @Setter(AccessLevel.PRIVATE)
-        final Date time = new Date();
-
+        Date time;
     }
 }

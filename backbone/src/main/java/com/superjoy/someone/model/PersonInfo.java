@@ -9,7 +9,7 @@ import java.util.Date;
  * @create 2020/11/16 10:06
  */
 @Data
-public class PersonBasicInfo extends PersonBasicInfoReq{
+public class PersonInfo extends PersonInfoReq {
     private Date updateTime;
     private Date regTime;
 }

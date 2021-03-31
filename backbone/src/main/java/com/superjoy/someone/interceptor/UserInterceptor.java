@@ -32,6 +32,9 @@ public class UserInterceptor implements HandlerInterceptor {
         if (request.getRequestURI().equals("/auth/phone")) {
             return true;
         }
+        if (request.getRequestURI().startsWith("/auth/sms")) {
+            return true;
+        }
         String authorization = request.getHeader("Authorization");
         authorization = StrUtil.removePrefix(authorization, "bearer ");
         authorization = StrUtil.removePrefix(authorization, "Bearer ");
@@ -41,6 +44,6 @@ public class UserInterceptor implements HandlerInterceptor {
         } else {
             throw new CommonException("请求头缺失授权token", 401);
         }
-        return false;
+        return true;
     }
 }
